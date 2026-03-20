@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Admin\CellController;
+use App\Http\Controllers\Api\Admin\UserController;
+use App\Http\Controllers\Api\Admin\DinosaurController;
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
@@ -13,10 +15,11 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-Route::middleware(['auth:api','role:ADMIN'])->prefix('admin')->group(function () {
-
+Route::middleware(['auth:api', 'role:ADMIN'])->prefix('admin')->group(function () {
     Route::apiResource('cells', CellController::class);
-
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('dinosaurs', DinosaurController::class);
 });
-//TODO faltan dinosaurios, y lo chungo el simulacro, revisar ejercicio serpiente marciano
-// falta video 4 en adelante
+
+// TODO falta perfil
+// TODO falta simulacro

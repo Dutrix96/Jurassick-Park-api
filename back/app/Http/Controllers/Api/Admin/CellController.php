@@ -8,16 +8,28 @@ use Illuminate\Http\Request;
 
 class CellController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
-        return response()->json(Cell::all());
+        $cells = Cell::with('dinosaurs')
+            ->orderBy('id')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Celdas obtenidas correctamente',
+            'data' => $cells,
+        ]);
     }
 
-    public function show($id)
+    public function show(string $id): JsonResponse
     {
-        $cell = Cell::with(['dinosaurs','tasks'])->findOrFail($id);
+        $cell = Cell::with('dinosaurs')->findOrFail($id);
 
-        return response()->json($cell);
+        return response()->json([
+            'success' => true,
+            'message' => 'Celda obtenida correctamente',
+            'data' => $cell,
+        ]);
     }
 
     public function store(Request $request)
@@ -33,10 +45,10 @@ class CellController extends Controller
 
         $cell = Cell::create($data);
 
-        return response()->json($cell,201);
+        return response()->json($cell, 201);
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
         $cell = Cell::findOrFail($id);
 
@@ -59,7 +71,7 @@ class CellController extends Controller
         $cell->delete();
 
         return response()->json([
-            'message'=>'Cell deleted'
+            'message' => 'Cell deleted'
         ]);
     }
 }
