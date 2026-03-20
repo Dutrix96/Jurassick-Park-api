@@ -175,7 +175,11 @@ function UsersPage() {
               <td>{user.role}</td>
               <td>
                 {user.avatar_url ? (
-                  <img src={user.avatar_url} alt={user.name} width="50" />
+                  <img
+                    src={`http://localhost:8080${user.avatar_url}`}
+                    alt={user.name}
+                    width="50"
+                  />
                 ) : (
                   "Sin avatar"
                 )}

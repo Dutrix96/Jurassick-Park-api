@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
+import api from "../api/api";
 import { useEffect, useState } from "react";
 
 function DashboardPage() {

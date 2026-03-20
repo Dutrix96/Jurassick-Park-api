@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../api/axios";
+import api from "../api/api";
 
 function CellDetailPage() {
   const { id } = useParams();

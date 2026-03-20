@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -74,20 +74,18 @@ class ProfileController extends Controller
             'avatar' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $uploadedFile = Cloudinary::upload(
-            $request->file('avatar')->getRealPath(),
-            [
-                'folder' => 'jurassic/users',
-                'public_id' => 'user_' . $user->id,
-                'overwrite' => true,
-                'resource_type' => 'image',
-            ]
-        );
+        if ($user->avatar_url) {
+            $oldPath = str_replace('/storage/', '', parse_url($user->avatar_url, PHP_URL_PATH) ?? '');
 
-        $avatarUrl = $uploadedFile->getSecurePath();
+            if ($oldPath) {
+                Storage::disk('public')->delete($oldPath);
+            }
+        }
+
+        $path = $request->file('avatar')->store('avatars', 'public');
 
         $user->update([
-            'avatar_url' => $avatarUrl,
+            'avatar_url' => '/storage/' . $path,
         ]);
 
         return response()->json([
