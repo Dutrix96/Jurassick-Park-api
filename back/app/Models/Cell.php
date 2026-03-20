@@ -25,4 +25,9 @@ class Cell extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function simulations(): HasMany
+    {
+        return $this->hasMany(Simulation::class, 'affected_cell_id');
+    }
 }
