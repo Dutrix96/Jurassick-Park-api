@@ -1,48 +1,54 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import api from '../api/api'
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
-export default function CellsPage() {
-  const [cells, setCells] = useState([])
-  const [error, setError] = useState('')
+function CellsPage() {
+  const navigate = useNavigate();
+  const [cells, setCells] = useState([]);
 
   useEffect(() => {
-    const fetchCells = async () => {
-      try {
-        const response = await api.get('/admin/cells')
-        setCells(response.data)
-      } catch (err) {
-        setError('No se pudieron cargar las celdas')
-      }
-    }
+    fetchCells();
+  }, []);
 
-    fetchCells()
-  }, [])
+  const fetchCells = async () => {
+    try {
+      const res = await api.get("/admin/cells");
+      setCells(res.data.data || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
-    <div className="container py-4">
-      <h1 className="h3 mb-4">Celdas del parque</h1>
+    <div style={{ padding: "1rem" }}>
+      <button onClick={() => navigate("/dashboard")}>Volver</button>
+      <h1>Celdas del parque</h1>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-
-      <div className="row g-3">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
         {cells.map((cell) => (
-          <div key={cell.id} className="col-md-4 col-lg-3">
-            <div className="card h-100 shadow-sm">
-              <div className="card-body">
-                <h2 className="h5">Celda {cell.row}-{cell.col}</h2>
-                <p className="mb-1">Seguridad: {cell.security_level}</p>
-                <p className="mb-1">Comida: {cell.food_level}</p>
-                <p className="mb-3">Averias: {cell.pending_repairs}</p>
-
-                <Link to={`/cells/${cell.id}`} className="btn btn-outline-primary btn-sm">
-                  Ver detalle
-                </Link>
-              </div>
-            </div>
+          <div
+            key={cell.id}
+            style={{
+              border: "1px solid #ccc",
+              borderRadius: "10px",
+              padding: "1rem",
+              width: "300px",
+            }}
+          >
+            <h2>
+              Celda {cell.row}-{cell.col}
+            </h2>
+            <p>Seguridad: {cell.security_level}</p>
+            <p>Comida: {cell.food_level}</p>
+            <p>Averias: {cell.pending_repairs}</p>
+            <button onClick={() => navigate(`/cells/${cell.id}`)}>
+              Ver detalle
+            </button>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }
+
+export default CellsPage;

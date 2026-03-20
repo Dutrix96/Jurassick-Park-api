@@ -1,37 +1,69 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+import { useEffect, useState } from "react";
 
-export default function DashboardPage() {
-  const navigate = useNavigate()
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+function DashboardPage() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    navigate('/login')
-  }
+  useEffect(() => {
+    fetchMe();
+  }, []);
+
+  const fetchMe = async () => {
+    try {
+      const res = await api.get("/auth/me");
+      setUser(res.data.data || res.data.user || res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      localStorage.removeItem("token");
+      navigate("/");
+    }
+  };
 
   return (
-    <div className="container py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+    <div style={{ padding: "2rem" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "2rem",
+        }}
+      >
         <div>
-          <h1 className="h3 mb-1">Panel de administracion</h1>
-          <p className="text-muted mb-0">
-            Bienvenido, {user.name} ({user.role})
+          <h1>Panel de administracion</h1>
+          <p>
+            Bienvenido, {user?.name} ({user?.role})
           </p>
         </div>
 
-        <button className="btn btn-outline-danger" onClick={handleLogout}>
-          Cerrar sesion
-        </button>
+        <button onClick={handleLogout}>Cerrar sesion</button>
       </div>
 
-      <div className="row g-3">
-        <div className="col-md-4">
-          <Link to="/cells" className="btn btn-primary w-100 py-3">
-            Gestionar celdas
-          </Link>
-        </div>
+      <div
+        style={{
+          display: "flex",
+          gap: "1rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <button onClick={() => navigate("/cells")}>Gestionar celdas</button>
+        <button onClick={() => navigate("/users")}>Gestionar trabajadores</button>
+        <button onClick={() => navigate("/dinosaurs")}>Gestionar dinosaurios</button>
+        <button onClick={() => navigate("/profile")}>Mi perfil</button>
       </div>
     </div>
-  )
+  );
 }
+
+export default DashboardPage;

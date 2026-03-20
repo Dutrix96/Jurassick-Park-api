@@ -1,81 +1,58 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import api from '../api/api'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
-export default function LoginPage() {
-  const navigate = useNavigate()
+function LoginPage() {
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    email: '',
-    password: '',
-  })
-
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+    email: "",
+    password: "",
+  });
 
   const handleChange = (e) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
 
     try {
-      const response = await api.post('/auth/login', form)
-
-      localStorage.setItem('token', response.data.token)
-      localStorage.setItem('user', JSON.stringify(response.data.user))
-
-      navigate('/dashboard')
-    } catch (err) {
-      setError('Credenciales incorrectas')
-    } finally {
-      setLoading(false)
+      const res = await api.post("/auth/login", form);
+      localStorage.setItem("token", res.data.token);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("Credenciales incorrectas");
     }
-  }
+  };
 
   return (
-    <div className="container min-vh-100 d-flex align-items-center justify-content-center">
-      <div className="card shadow p-4" style={{ maxWidth: '420px', width: '100%' }}>
-        <h1 className="h3 mb-4 text-center">Jurassic Park Admin</h1>
+    <div style={{ padding: "2rem" }}>
+      <h1>Login</h1>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Correo</label>
-            <input
-              type="email"
-              name="email"
-              className="form-control"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Contrasena</label>
-            <input
-              type="password"
-              name="password"
-              className="form-control"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {error && <div className="alert alert-danger">{error}</div>}
-
-          <button type="submit" className="btn btn-success w-100" disabled={loading}>
-            {loading ? 'Entrando...' : 'Iniciar sesion'}
-          </button>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          name="email"
+          placeholder="Correo"
+          value={form.email}
+          onChange={handleChange}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Contrasena"
+          value={form.password}
+          onChange={handleChange}
+        />
+        <button type="submit">Iniciar sesion</button>
+      </form>
     </div>
-  )
+  );
 }
+
+export default LoginPage;
