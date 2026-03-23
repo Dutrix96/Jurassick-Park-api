@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/api';
 import { getEcho } from '../api/echo';
 
 export default function AdminTasksPage() {
+  const navigate = useNavigate();
+
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
@@ -59,11 +62,32 @@ export default function AdminTasksPage() {
   };
 
   if (loading) {
-    return <div className="container py-4">Cargando tareas...</div>;
+    return (
+      <div className="container py-4">
+        <div className="mb-3">
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => navigate('/dashboard')}
+          >
+            Volver al dashboard
+          </button>
+        </div>
+        Cargando tareas...
+      </div>
+    );
   }
 
   return (
     <div className="container py-4">
+      <div className="mb-3">
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() => navigate('/dashboard')}
+        >
+          Volver al dashboard
+        </button>
+      </div>
+
       <h1 className="mb-4">Gestion de tareas</h1>
 
       {error && <div className="alert alert-danger">{error}</div>}

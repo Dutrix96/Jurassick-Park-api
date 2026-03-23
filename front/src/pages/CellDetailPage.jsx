@@ -65,7 +65,7 @@ function CellDetailPage() {
 
     try {
       await api.delete(`/admin/cells/${id}`);
-      navigate("/cells");
+      navigate("/admin/cells");
     } catch (error) {
       console.error(error);
       alert("Error al eliminar celda");
@@ -76,7 +76,7 @@ function CellDetailPage() {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <button onClick={() => navigate("/cells")}>Volver</button>
+      <button onClick={() => navigate("/admin/cells")}>Volver</button>      
       <h1>
         Celda {cell.row}-{cell.col}
       </h1>
