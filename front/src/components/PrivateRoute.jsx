@@ -1,11 +1,21 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, Outlet } from "react-router-dom";
+import { getStoredUser } from "../api/api";
 
-export default function PrivateRoute({ children }) {
-  const token = localStorage.getItem('token')
+function PrivateRoute({ allowedRoles = [] }) {
+  const token = localStorage.getItem("token");
+  const user = getStoredUser();
 
   if (!token) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
 
-  return children
+  if (allowedRoles.length > 0) {
+    if (!user || !allowedRoles.includes(user.role)) {
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+
+  return <Outlet />;
 }
+
+export default PrivateRoute;

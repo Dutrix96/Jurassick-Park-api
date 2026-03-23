@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/api";
+import api, { setStoredAuth } from "../api/api";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -9,6 +9,8 @@ function LoginPage() {
     email: "",
     password: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -21,12 +23,34 @@ function LoginPage() {
     e.preventDefault();
 
     try {
-      const res = await api.post("/auth/login", form);
-      localStorage.setItem("token", res.data.token);
+      setLoading(true);
+
+      const loginRes = await api.post("/auth/login", form);
+      const token = loginRes.data.token;
+
+      localStorage.setItem("token", token);
+
+      const meRes = await api.get("/auth/me");
+      const user = meRes.data.user ?? meRes.data;
+
+      setStoredAuth({ token, user });
+
+      if (user.role === "ADMIN") {
+        navigate("/dashboard");
+        return;
+      }
+
+      if (user.role === "VET" || user.role === "MAINTENANCE") {
+        navigate("/tasks/my-tasks");
+        return;
+      }
+
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
       alert("Credenciales incorrectas");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,7 +58,7 @@ function LoginPage() {
     <div style={{ padding: "2rem" }}>
       <h1>Login</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem", maxWidth: "320px" }}>
         <input
           type="email"
           name="email"
@@ -42,6 +66,7 @@ function LoginPage() {
           value={form.email}
           onChange={handleChange}
         />
+
         <input
           type="password"
           name="password"
@@ -49,7 +74,10 @@ function LoginPage() {
           value={form.password}
           onChange={handleChange}
         />
-        <button type="submit">Iniciar sesion</button>
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Entrando..." : "Iniciar sesion"}
+        </button>
       </form>
     </div>
   );

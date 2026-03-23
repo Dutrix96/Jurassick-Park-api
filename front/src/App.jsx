@@ -1,73 +1,42 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
+
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
-import CellsPage from "./pages/CellsPage";
-import CellDetailPage from "./pages/CellDetailPage";
+import ProfilePage from "./pages/ProfilePage";
 import UsersPage from "./pages/UsersPage";
 import DinosaursPage from "./pages/DinosaursPage";
-import ProfilePage from "./pages/ProfilePage";
-import "./App.css";
+import CellsPage from "./pages/CellsPage";
+import CellDetailPage from "./pages/CellDetailPage";
+import WorkerTasksPage from "./pages/WorkerTasksPage";
+import AdminTasksPage from "./pages/AdminTasksPage";
+import SimulationsPage from "./pages/SimulationsPage";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LoginPage />} />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
 
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <DashboardPage />
-          </PrivateRoute>
-        }
-      />
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/tasks/my-tasks" element={<WorkerTasksPage />} />
+        </Route>
 
-      <Route
-        path="/cells"
-        element={
-          <PrivateRoute>
-            <CellsPage />
-          </PrivateRoute>
-        }
-      />
+        <Route element={<PrivateRoute allowedRoles={["ADMIN"]} />}>
+          <Route path="/admin/users" element={<UsersPage />} />
+          <Route path="/admin/dinosaurs" element={<DinosaursPage />} />
+          <Route path="/admin/cells" element={<CellsPage />} />
+          <Route path="/admin/cells/:id" element={<CellDetailPage />} />
+          <Route path="/admin/tasks" element={<AdminTasksPage />} />
+          <Route path="/admin/simulations" element={<SimulationsPage />} />
+        </Route>
 
-      <Route
-        path="/cells/:id"
-        element={
-          <PrivateRoute>
-            <CellDetailPage />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/users"
-        element={
-          <PrivateRoute>
-            <UsersPage />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/dinosaurs"
-        element={
-          <PrivateRoute>
-            <DinosaursPage />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <ProfilePage />
-          </PrivateRoute>
-        }
-      />
-    </Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
