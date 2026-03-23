@@ -107,7 +107,7 @@ export default function AdminTasksPage() {
                   >
                     <option value="">Seleccionar usuario</option>
                     {users
-                      .filter((user) => user.role === 'VET' || user.role === 'MAINTENANCE')
+                      .filter((user) => user.role === 'VET' || user.role === 'MAINT')
                       .map((user) => (
                         <option key={user.id} value={user.id}>
                           {user.name} - {user.role}

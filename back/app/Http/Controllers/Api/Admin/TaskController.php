@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Enums\TaskStatus;
 use App\Events\TaskUpdated;
@@ -9,6 +9,8 @@ use App\Http\Requests\UpdateTaskStatusRequest;
 use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use App\Http\Controllers\Controller;
+
 
 
 class TaskController extends Controller

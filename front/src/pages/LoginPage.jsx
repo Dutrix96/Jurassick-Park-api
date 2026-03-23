@@ -37,7 +37,7 @@ function LoginPage() {
         return;
       }
 
-      if (user.role === "VET" || user.role === "MAINTENANCE") {
+      if (user.role === "VET" || user.role === "MAINT") {
         navigate("/tasks/my-tasks");
         return;
       }

@@ -13,7 +13,7 @@ function DashboardPage() {
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem", maxWidth: "320px" }}>
         <Link to="/profile">Mi perfil</Link>
 
-        {(user?.role === "VET" || user?.role === "MAINTENANCE") && (
+        {(user?.role === "VET" || user?.role === "MAINT") && (
           <Link to="/tasks/my-tasks">Mis tareas</Link>
         )}
 

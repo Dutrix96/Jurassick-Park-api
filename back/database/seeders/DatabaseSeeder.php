@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CellSeeder::class,
             DinosaurSeeder::class,
+            TaskSeeder::class,
         ]);
     }
 }

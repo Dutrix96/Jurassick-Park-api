@@ -134,7 +134,7 @@ function UsersPage() {
         <select name="role" value={form.role} onChange={handleChange}>
           <option value="ADMIN">ADMIN</option>
           <option value="VET">VET</option>
-          <option value="MAINTENANCE">MAINTENANCE</option>
+          <option value="MAINT">MAINTENANCE</option>
         </select>
         <input
           type="text"
