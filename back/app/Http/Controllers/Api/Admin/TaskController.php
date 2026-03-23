@@ -71,11 +71,11 @@ class TaskController extends Controller
         $task->status = $newStatus;
 
         if ($newStatus === TaskStatus::IN_PROGRESS->value && !$task->started_at) {
-            $task->started_at = Carbon::nownow();
+            $task->started_at = Carbon::now();
         }
 
         if ($newStatus === TaskStatus::COMPLETED->value) {
-            $task->finished_at = Carbon::nownow();
+            $task->finished_at = Carbon::now();
         }
 
         if ($newStatus === TaskStatus::PENDING->value) {

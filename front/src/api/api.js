@@ -1,11 +1,11 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api",
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
 });
 
 export const getStoredUser = () => {
-  const rawUser = localStorage.getItem("user");
+  const rawUser = sessionStorage.getItem("user");
 
   if (!rawUser) {
     return null;
@@ -29,13 +29,13 @@ export const getStoredUser = () => {
 };
 
 export const setStoredAuth = ({ token, user }) => {
-  localStorage.setItem("token", token);
-  localStorage.setItem("user", JSON.stringify(user));
+  sessionStorage.setItem("token", token);
+  sessionStorage.setItem("user", JSON.stringify(user));
 };
 
 export const clearStoredAuth = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("user");
 };
 
 export default api;

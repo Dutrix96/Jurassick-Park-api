@@ -14,6 +14,7 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - jurassic_net
+
   adminer:
     image: adminer:4
     container_name: jurassic_adminer
@@ -36,6 +37,24 @@ services:
       - ./back:/var/www
     depends_on:
       - db
+    networks:
+      - jurassic_net
+
+  reverb:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: jurassic_reverb
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./back:/var/www
+    command: php artisan reverb:start --host=0.0.0.0 --port=8082
+    depends_on:
+      - db
+      - back
+    ports:
+      - "8082:8082"
     networks:
       - jurassic_net
 

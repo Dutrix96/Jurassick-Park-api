@@ -26,12 +26,9 @@ function LoginPage() {
       setLoading(true);
 
       const loginRes = await api.post("/auth/login", form);
+
       const token = loginRes.data.token;
-
-      localStorage.setItem("token", token);
-
-      const meRes = await api.get("/auth/me");
-      const user = meRes.data.user ?? meRes.data;
+      const user = loginRes.data.user;
 
       setStoredAuth({ token, user });
 
@@ -48,7 +45,14 @@ function LoginPage() {
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      alert("Credenciales incorrectas");
+
+      if (error.response?.status === 401 && error.config?.url?.includes("/auth/login")) {
+        alert("Credenciales incorrectas");
+      } else if (error.response?.status === 401 && error.config?.url?.includes("/auth/me")) {
+        alert("Login correcto, pero no se pudo recuperar el usuario autenticado");
+      } else {
+        alert("No se pudo conectar con el servidor");
+      }
     } finally {
       setLoading(false);
     }

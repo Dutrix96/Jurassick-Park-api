@@ -14,7 +14,6 @@ import SimulationsPage from "./pages/SimulationsPage";
 
 function App() {
   return (
-    <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 
@@ -33,10 +32,9 @@ function App() {
           <Route path="/admin/simulations" element={<SimulationsPage />} />
         </Route>
 
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </BrowserRouter>
   );
 }
 
