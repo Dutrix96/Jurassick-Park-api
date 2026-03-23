@@ -1,5 +1,5 @@
 <?php
-
+//sinceramente tras varias horas de fallos y parches ha quedado asi este archivo, mucha ia
 namespace App\Services;
 
 use App\Enums\SimulationResult;
@@ -9,7 +9,7 @@ use App\Events\SimulationFinished;
 use App\Models\Cell;
 use App\Models\Simulation;
 use App\Models\User;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 
 class SimulationService
@@ -21,7 +21,8 @@ class SimulationService
 
     public function runNormal(?array $cellIds, User $user): Simulation
     {
-        return DB::transaction(function () use ($cellIds, $user) {
+        return DB::transaction(function () use ($cellIds, $user): Simulation {
+            /** @var EloquentCollection<int, Cell> $cells */
             $cells = Cell::query()
                 ->when(!empty($cellIds), function ($query) use ($cellIds) {
                     $query->whereIn('id', $cellIds);
@@ -31,6 +32,8 @@ class SimulationService
             $report = [];
 
             foreach ($cells as $cell) {
+                /** @var Cell $cell */
+
                 $foodDecrease = rand(10, 35);
                 $newRepairs = rand(0, 3);
 
@@ -85,11 +88,22 @@ class SimulationService
 
     public function runBreach(?int $cellId, bool $random, User $user): Simulation
     {
-        return DB::transaction(function () use ($cellId, $random, $user) {
+        return DB::transaction(function () use ($cellId, $random, $user): Simulation {
+            /** @var Cell $cell */ //Fernando me daba un fallo amarillo puñetero, y despues de un rato la unica solucion
+                                // que no era de terrorista de las que me daba el gpt era esta
             $cell = $this->resolveBreachCell($cellId, $random);
 
             $dangerousDinosaurs = $cell->dinosaurs()
-                ->whereIn('danger_level', ['HIGH', 'VERY_HIGH', 'EXTREME', 'CRITICAL', 'ALTO', 'MUY_ALTO', 'EXTREMO', 'CRITICO'])
+                ->whereIn('danger_level', [
+                    'HIGH',
+                    'VERY_HIGH',
+                    'EXTREME',
+                    'CRITICAL',
+                    'ALTO',
+                    'MUY_ALTO',
+                    'EXTREMO',
+                    'CRITICO',
+                ])
                 ->count();
 
             $totalDinosaurs = $cell->dinosaurs()->count();
@@ -172,9 +186,15 @@ class SimulationService
     protected function resolveBreachCell(?int $cellId, bool $random): Cell
     {
         if ($random || !$cellId) {
-            return Cell::query()->inRandomOrder()->firstOrFail();
+            /** @var Cell $cell */
+            $cell = Cell::query()->inRandomOrder()->firstOrFail();
+
+            return $cell;
         }
 
-        return Cell::query()->findOrFail($cellId);
+        /** @var Cell $cell */
+        $cell = Cell::query()->findOrFail($cellId);
+
+        return $cell;
     }
 }
