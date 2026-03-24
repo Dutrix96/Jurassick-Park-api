@@ -22,6 +22,7 @@ function CellDetailPage() {
     try {
       const res = await api.get(`/admin/cells/${id}`);
       const data = res.data.data;
+
       setCell(data);
       setForm({
         security_level: data.security_level,
@@ -31,6 +32,7 @@ function CellDetailPage() {
       });
     } catch (error) {
       console.error(error);
+      alert("Error al cargar la celda");
     }
   };
 
@@ -52,7 +54,7 @@ function CellDetailPage() {
         notes: form.notes,
       });
 
-      fetchCell();
+      await fetchCell();
       alert("Celda actualizada");
     } catch (error) {
       console.error(error);
@@ -76,64 +78,118 @@ function CellDetailPage() {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <button onClick={() => navigate("/admin/cells")}>Volver</button>      
+      <button onClick={() => navigate("/admin/cells")}>Volver</button>
+
       <h1>
         Celda {cell.row}-{cell.col}
       </h1>
 
       <div style={{ marginBottom: "2rem" }}>
-        <p><strong>Seguridad:</strong> {cell.security_level}</p>
-        <p><strong>Comida:</strong> {cell.food_level}</p>
-        <p><strong>Averias:</strong> {cell.pending_repairs}</p>
-        <p><strong>Notas:</strong> {cell.notes || "Sin notas"}</p>
+        <p>
+          <strong>Seguridad:</strong> {cell.security_level}
+        </p>
+        <p>
+          <strong>Comida:</strong> {cell.food_level}
+        </p>
+        <p>
+          <strong>Averias:</strong> {cell.pending_repairs}
+        </p>
+        <p>
+          <strong>Notas:</strong> {cell.notes || "Sin notas"}
+        </p>
       </div>
 
       <form onSubmit={handleUpdate} style={{ marginBottom: "2rem" }}>
         <h2>Editar celda</h2>
-        <input
-          type="number"
-          name="security_level"
-          value={form.security_level}
-          onChange={handleChange}
-          min="0"
-          max="100"
-        />
-        <input
-          type="number"
-          name="food_level"
-          value={form.food_level}
-          onChange={handleChange}
-          min="0"
-          max="100"
-        />
-        <input
-          type="number"
-          name="pending_repairs"
-          value={form.pending_repairs}
-          onChange={handleChange}
-          min="0"
-        />
-        <textarea
-          name="notes"
-          value={form.notes}
-          onChange={handleChange}
-          placeholder="Notas"
-        />
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label>Seguridad</label>
+          <br />
+          <input
+            type="number"
+            name="security_level"
+            value={form.security_level}
+            onChange={handleChange}
+            min="0"
+            max="100"
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label>Comida</label>
+          <br />
+          <input
+            type="number"
+            name="food_level"
+            value={form.food_level}
+            onChange={handleChange}
+            min="0"
+            max="100"
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label>Averias</label>
+          <br />
+          <input
+            type="number"
+            name="pending_repairs"
+            value={form.pending_repairs}
+            onChange={handleChange}
+            min="0"
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label>Notas</label>
+          <br />
+          <textarea
+            name="notes"
+            value={form.notes}
+            onChange={handleChange}
+            placeholder="Notas"
+            rows="4"
+            cols="40"
+          />
+        </div>
+
         <button type="submit">Guardar cambios</button>
       </form>
 
       <div style={{ marginBottom: "2rem" }}>
         <h2>Dinosaurios</h2>
+
         {cell.dinosaurs && cell.dinosaurs.length > 0 ? (
           <ul>
             {cell.dinosaurs.map((dino) => (
               <li key={dino.id}>
-                {dino.nick} - {dino.species}
+                <strong>{dino.nick}</strong> - {dino.species} - {dino.diet} - peligro:{" "}
+                {dino.danger_level}
               </li>
             ))}
           </ul>
         ) : (
           <p>No hay dinosaurios en esta celda</p>
+        )}
+      </div>
+
+      <div style={{ marginBottom: "2rem" }}>
+        <h2>Tareas en esta celda</h2>
+
+        {cell.tasks && cell.tasks.length > 0 ? (
+          <ul>
+            {cell.tasks.map((task) => (
+              <li key={task.id} style={{ marginBottom: "1rem" }}>
+                <strong>{task.title}</strong> - {task.type} - {task.status}
+                <br />
+                Prioridad: {task.priority}
+                <br />
+                Trabajador: {task.user ? task.user.name : "Sin asignar"}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No hay tareas en esta celda</p>
         )}
       </div>
 

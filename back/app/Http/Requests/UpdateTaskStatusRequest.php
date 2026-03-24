@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Enums\TaskStatus;
 
 class UpdateTaskStatusRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class UpdateTaskStatusRequest extends FormRequest
         return [
             'status' => [
                 'required',
-                Rule::in(['PENDING', 'IN_PROGRESS', 'FINISHED']),
+                Rule::in(array_column(TaskStatus::cases(), 'value')),
             ],
         ];
     }

@@ -25,8 +25,7 @@ class CellController extends Controller
 
     public function show(string $id): JsonResponse
     {
-        $cell = Cell::with('dinosaurs')->findOrFail($id);
-
+        $cell = Cell::with(['dinosaurs', 'tasks.user'])->findOrFail($id);
         return response()->json([
             'success' => true,
             'message' => 'Celda obtenida correctamente',
