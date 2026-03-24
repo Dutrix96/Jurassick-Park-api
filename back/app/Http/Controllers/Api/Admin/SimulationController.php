@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Api\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RunBreachSimulationRequest;
 use App\Http\Requests\RunNormalSimulationRequest;
+use App\Models\Simulation;
 use App\Services\SimulationService;
 use Illuminate\Http\JsonResponse;
 
@@ -12,6 +14,37 @@ class SimulationController extends Controller
     public function __construct(
         protected SimulationService $simulationService
     ) {
+    }
+
+    public function index(): JsonResponse
+    {
+        $this->ensureAdmin();
+
+        $simulations = Simulation::query()
+            ->with('triggeredBy')
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Simulaciones obtenidas con exito',
+            'data' => $simulations,
+        ]);
+    }
+
+    public function show(string $id): JsonResponse
+    {
+        $this->ensureAdmin();
+
+        $simulation = Simulation::query()
+            ->with('triggeredBy')
+            ->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Simulacion obtenida con exito',
+            'data' => $simulation,
+        ]);
     }
 
     public function runNormal(RunNormalSimulationRequest $request): JsonResponse

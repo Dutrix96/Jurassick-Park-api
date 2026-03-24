@@ -13,6 +13,8 @@ export default function SimulationsPage() {
   const [error, setError] = useState('');
   const [running, setRunning] = useState(false);
   const [lastSimulation, setLastSimulation] = useState(null);
+  const [simulations, setSimulations] = useState([]);
+  const [selectedSimulation, setSelectedSimulation] = useState(null);
 
   const loadCells = async () => {
     try {
@@ -23,16 +25,28 @@ export default function SimulationsPage() {
     }
   };
 
+  const loadSimulations = async () => {
+    try {
+      const response = await api.get('/admin/simulations');
+      setSimulations(response.data.data);
+    } catch (err) {
+      setError('No se pudieron cargar las simulaciones');
+    }
+  };
+
   useEffect(() => {
     loadCells();
+    loadSimulations();
 
     const echo = getEcho();
     const channel = echo.channel('park');
 
     channel.listen('.simulation.finished', (event) => {
       setLastSimulation(event.simulation);
+      setSelectedSimulation(event.simulation);
       setMessage(`Simulacion ${event.simulation.type} completada con resultado ${event.simulation.result}`);
       loadCells();
+      loadSimulations();
     });
 
     channel.listen('.cell.updated', () => {
@@ -64,8 +78,10 @@ export default function SimulationsPage() {
       const response = await api.post('/admin/simulations/normal', payload);
 
       setLastSimulation(response.data.data);
+      setSelectedSimulation(response.data.data);
       setMessage('Simulacion normal ejecutada correctamente');
       await loadCells();
+      await loadSimulations();
     } catch (err) {
       setError('No se pudo ejecutar la simulacion normal');
     } finally {
@@ -83,13 +99,99 @@ export default function SimulationsPage() {
         ? { random: true }
         : { cell_id: Number(selectedCellId), random: false };
 
-      await api.post('/admin/simulations/breach', payload);
+      const response = await api.post('/admin/simulations/breach', payload);
+
+      setLastSimulation(response.data.data);
+      setSelectedSimulation(response.data.data);
+      setMessage('Simulacion de brecha ejecutada correctamente');
       await loadCells();
+      await loadSimulations();
     } catch (err) {
       setError('No se pudo ejecutar la simulacion de brecha');
     } finally {
       setRunning(false);
     }
+  };
+
+  const renderSimulationReport = (simulation) => {
+    if (!simulation || !simulation.report) {
+      return <p className="text-muted mb-0">No hay informe disponible.</p>;
+    }
+
+    const report = simulation.report;
+
+    return (
+      <div className="mt-3">
+        <div className="mb-3">
+          <p className="mb-1">
+            <strong>Tipo:</strong> {simulation.type}
+          </p>
+          <p className="mb-1">
+            <strong>Resultado:</strong> {simulation.result}
+          </p>
+          <p className="mb-1">
+            <strong>Lanzada por:</strong> {simulation.triggered_by}
+          </p>
+          <p className="mb-0">
+            <strong>Celda afectada:</strong>{' '}
+            {simulation.affected_cell_id ? simulation.affected_cell_id : 'No aplica'}
+          </p>
+        </div>
+
+        {report.cells && report.cells.length > 0 ? (
+          <div className="table-responsive">
+            <table className="table table-striped table-bordered align-middle">
+              <thead className="table-dark">
+                <tr>
+                  <th>Celda</th>
+                  <th>Comida antes</th>
+                  <th>Comida despues</th>
+                  <th>Seguridad antes</th>
+                  <th>Seguridad despues</th>
+                  <th>Averias antes</th>
+                  <th>Averias despues</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.cells.map((cell, index) => (
+                  <tr key={index}>
+                    <td>
+                      ({cell.position?.row},{cell.position?.col})
+                    </td>
+                    <td>{cell.food_before ?? '-'}</td>
+                    <td>{cell.food_after ?? '-'}</td>
+                    <td>{cell.security_before ?? '-'}</td>
+                    <td>{cell.security_after ?? '-'}</td>
+                    <td>{cell.repairs_before ?? '-'}</td>
+                    <td>{cell.repairs_after ?? '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-muted">No hay celdas registradas en este informe.</p>
+        )}
+
+        {report.summary && (
+          <div className="mt-3">
+            <h6>Resumen</h6>
+            <pre className="bg-light p-3 border rounded small mb-0">
+              {JSON.stringify(report.summary, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {report.events && (
+          <div className="mt-3">
+            <h6>Eventos</h6>
+            <pre className="bg-light p-3 border rounded small mb-0">
+              {JSON.stringify(report.events, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -216,14 +318,90 @@ export default function SimulationsPage() {
 
           {lastSimulation && (
             <div className="mt-4">
-              <h5>Ultima simulacion</h5>
-              <pre className="bg-light p-3 border rounded small">
-                {JSON.stringify(lastSimulation, null, 2)}
-              </pre>
+              <h5>Ultima simulacion ejecutada</h5>
+              {renderSimulationReport(lastSimulation)}
             </div>
           )}
         </div>
       </div>
+
+      <div className="card shadow-sm mt-4">
+        <div className="card-body">
+          <h4 className="mb-3">Historial de simulaciones</h4>
+
+          {simulations.length === 0 ? (
+            <p className="text-muted mb-0">Todavia no hay simulaciones guardadas.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-striped table-bordered align-middle">
+                <thead className="table-dark">
+                  <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Resultado</th>
+                    <th>Usuario</th>
+                    <th>Celda afectada</th>
+                    <th>Fecha</th>
+                    <th>Accion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {simulations.map((simulation) => (
+                    <tr key={simulation.id}>
+                      <td>{simulation.id}</td>
+                      <td>{simulation.type}</td>
+                      <td>{simulation.result}</td>
+                      <td>
+                        {simulation.triggeredBy?.name
+                          ? simulation.triggeredBy.name
+                          : simulation.triggered_by}
+                      </td>
+                      <td>
+                        {simulation.affected_cell_id
+                          ? simulation.affected_cell_id
+                          : 'No aplica'}
+                      </td>
+                      <td>
+                        {simulation.created_at
+                          ? new Date(simulation.created_at).toLocaleString()
+                          : '-'}
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => setSelectedSimulation(simulation)}
+                        >
+                          Ver informe
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {selectedSimulation && (
+        <div className="card shadow-sm mt-4">
+          <div className="card-body">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h4 className="mb-0">
+                Informe de simulacion #{selectedSimulation.id}
+              </h4>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => setSelectedSimulation(null)}
+              >
+                Cerrar informe
+              </button>
+            </div>
+
+            {renderSimulationReport(selectedSimulation)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

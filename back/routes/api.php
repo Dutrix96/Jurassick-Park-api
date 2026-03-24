@@ -42,6 +42,8 @@ Route::middleware(['auth:api', 'role:ADMIN'])->prefix('admin')->group(function (
     });
 
     Route::prefix('simulations')->group(function () {
+        Route::get('/', [SimulationController::class, 'index']);
+        Route::get('{id}', [SimulationController::class, 'show']);
         Route::post('normal', [SimulationController::class, 'runNormal']);
         Route::post('breach', [SimulationController::class, 'runBreach']);
     });
