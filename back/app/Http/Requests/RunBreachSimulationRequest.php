@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RunBreachSimulationRequest extends FormRequest
 {
@@ -14,8 +15,13 @@ class RunBreachSimulationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cell_id' => ['nullable', 'integer', 'exists:cells,id'],
-            'random' => ['nullable', 'boolean'],
+            'random' => ['required', 'boolean'],
+            'cell_id' => [
+                Rule::requiredIf(fn () => ! $this->boolean('random')),
+                'nullable',
+                'integer',
+                'exists:cells,id',
+            ],
         ];
     }
 }

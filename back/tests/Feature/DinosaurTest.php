@@ -19,11 +19,11 @@ class DinosaurTest extends TestCase
         $response = $this->actingAs($admin, 'api')
             ->postJson('/api/admin/dinosaurs', [
                 'nick' => 'Rexy',
-                'species' => 'T-Rex',
+                'species' => 'Tyrannosaurus rex',
                 'age' => 5,
-                'diet' => 'carnivore',
-                'danger_level' => 'extreme',
-                'cell_id' => $cell->id
+                'diet' => 'CARNIVORE',
+                'danger_level' => 'HIGH',
+                'cell_id' => $cell->id,
             ]);
 
         $response->assertStatus(201);

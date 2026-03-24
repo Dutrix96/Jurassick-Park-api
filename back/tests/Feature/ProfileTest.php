@@ -65,8 +65,8 @@ class ProfileTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user, 'api')
-            ->postJson('/api/profile/avatar', [
-                'avatar' => UploadedFile::fake()->image('avatar.jpg'),
+            ->post('/api/profile/avatar', [
+                'avatar' => UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg'),
             ]);
 
         $response->assertStatus(200);
